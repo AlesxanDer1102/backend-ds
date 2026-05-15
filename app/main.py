@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from app import models  
 from app.config import settings
 from app.database import Base, engine
+from app.routers import incidencias
 
 
 @asynccontextmanager
@@ -33,6 +34,7 @@ app.add_middleware(
 )
 
 app.mount("/uploads", StaticFiles(directory=settings.uploads_dir), name="uploads")
+app.include_router(incidencias.router)
 
 
 @app.get("/", tags=["salud"])
