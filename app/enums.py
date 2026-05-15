@@ -7,3 +7,11 @@ class Categoria(str, Enum):
     BASURA = "basura"
     SEGURIDAD = "seguridad"
     EMERGENCIA = "emergencia"
+
+
+class EstadoIncidencia(str, Enum):
+    REPORTADA = "reportada"
+    EN_REVISION = "en_revision"
+    EN_PROCESO = "en_proceso"
+    RESUELTA = "resuelta"
+    RECHAZADA = "rechazada"

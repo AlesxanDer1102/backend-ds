@@ -6,8 +6,9 @@ from app.decorators import manejar_errores_de_dominio
 from app.enums import Categoria
 from app.factories import IncidenciaFactory
 from app.models import Incidencia
-from app.schemas import IncidenciaOut
+from app.schemas import CambioEstadoIn, IncidenciaOut
 from app.services.image_service import image_storage
+from app.services.workflow import workflow
 
 router = APIRouter(prefix="/incidencias", tags=["incidencias"])
 
@@ -50,4 +51,24 @@ def obtener_incidencia(incidencia_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Incidencia no encontrada",
         )
+    return incidencia
+
+
+@router.patch("/{incidencia_id}/estado", response_model=IncidenciaOut)
+@manejar_errores_de_dominio
+async def actualizar_estado(
+    incidencia_id: int,
+    cambio: CambioEstadoIn,
+    db: Session = Depends(get_db),
+):
+    incidencia = db.get(Incidencia, incidencia_id)
+    if incidencia is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Incidencia no encontrada",
+        )
+    workflow.validar(incidencia.estado, cambio.estado.value)
+    incidencia.estado = cambio.estado.value
+    db.commit()
+    db.refresh(incidencia)
     return incidencia
